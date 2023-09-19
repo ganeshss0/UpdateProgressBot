@@ -11,6 +11,7 @@ from telegram.ext import (
     JobQueue,
     ConversationHandler
 )
+import update_csv as uc
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -44,15 +45,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         )
 
 
-async def config(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    token = str(context.args[0])
-    
-    if token:
-        if token == ACCESS_TOKEN:
-            pass
-
-    await update.effective_message.reply_text('Usage: /config <AccessToken>')
-
 
 
 
@@ -64,6 +56,7 @@ async def unknown(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def today_status(context:ContextTypes.DEFAULT_TYPE):
+
     reply_keyboard = [['0', '1', '2'], ['3', '4', '5']]
     job = context.job
     
@@ -79,15 +72,9 @@ async def today_status(context:ContextTypes.DEFAULT_TYPE):
     )
 
 
-async def callbacker(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    status = float(context.args[0])
-    if not -1 < status < 9:
-        unknown(update, context)
-        return
-    await update.effective_message.reply_text('Progress Updated')
     
 async def get_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.effective_message.reply_text()
+    pass
 
 async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Cancels and ends the conversation."""
@@ -104,8 +91,15 @@ async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 async def set_number(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    selected_number = update.message.text
-    await update.message.reply_text(f'/set {selected_number}')
+    if update.effective_user.name != SUPER_USER:
+        await update.effective_chat.send_message(text="Please don't Spam I can't help you")
+        return
+
+    try:
+        selected_number = int(update.message.text)
+        uc.update(selected_number, './my_data/GoodDay.csv')
+    except:
+        return None
 
 
 
@@ -117,8 +111,6 @@ if __name__ == '__main__':
 
     start_handler = CommandHandler('start', start)
     num_handler = MessageHandler(filters.Regex('^(0|1|2|3|4|5)$'), set_number)
-    config_handler = CommandHandler('config', config)
-    update_handler = CommandHandler('update', today_status)
     get_st = CommandHandler('stat', get_status)
     stop_handler = CommandHandler('stop', stop)
     unknown_handler = MessageHandler(filters.COMMAND, unknown)
@@ -126,8 +118,6 @@ if __name__ == '__main__':
 
 
     application.add_handler(start_handler)
-    application.add_handler(config_handler)
-    application.add_handler(update_handler)
     application.add_handler(get_st)
     application.add_handler(stop_handler)
     application.add_handler(num_handler)
