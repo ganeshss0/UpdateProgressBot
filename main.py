@@ -12,6 +12,8 @@ from telegram.ext import (
     ConversationHandler
 )
 import update_csv as uc
+import handle_git as hg
+import datetime as dt
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -22,7 +24,6 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 
-ACCESS_TOKEN = 'R36CdvV8sRX2Sr@%S^CbeiuhUBejbtn^q2Mwmo3oFbNb8wLimSZHYBBSMhCkdhyoi!AYX$JJ'
 SUPER_USER = '@dopodix'
 START_TEXT = 'Hello, I am a bot, Developed by https://t.me/dopodix . My task is to periodically sends messages to my Developer and based on their response update https://github.com/ganeshss0 this GitHub repository. Sorry, Currently I only respond to my Developer messages only. Thank you!'
 
@@ -33,11 +34,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.effective_chat.id
 
     if update.effective_user.name == SUPER_USER:
-        context.job_queue.run_repeating(
-            today_status, 
-            interval=5, 
+        context.job_queue.run_daily(
+            today_status,  
             name=SUPER_USER, 
-            chat_id=chat_id
+            chat_id=chat_id,
+            time=dt.time(8, 30)
         )
 
     await update.message.reply_text(
@@ -74,7 +75,13 @@ async def today_status(context:ContextTypes.DEFAULT_TYPE):
 
     
 async def get_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    pass
+    if update.effective_user.name == SUPER_USER:
+        await context.bot.send_photo(chat_id=update.effective_chat.id, photo='./my_data/progress.png')
+    else:
+        await update.message.reply_text(text="Please! Don't waste your time, I am not going to give you any useful results.")
+
+
+
 
 async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Cancels and ends the conversation."""
@@ -91,15 +98,19 @@ async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 async def set_number(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.effective_user.name != SUPER_USER:
+    if update.effective_user.name == SUPER_USER:
+        
+        try:
+            selected_number = int(update.message.text)
+            uc.update(selected_number, './my_data/GoodDay.csv')
+            hg.update()
+            await update.effective_chat.send_message(text='Succesfully Updated')
+        except:
+            unknown(update, context)
+        
+    else:
         await update.effective_chat.send_message(text="Please don't Spam I can't help you")
-        return
 
-    try:
-        selected_number = int(update.message.text)
-        uc.update(selected_number, './my_data/GoodDay.csv')
-    except:
-        return None
 
 
 
@@ -122,5 +133,4 @@ if __name__ == '__main__':
     application.add_handler(stop_handler)
     application.add_handler(num_handler)
     application.add_handler(unknown_handler)
-    # job_minute = job_queue.run_repeating(callback_minute, interval=5, first=10, name='SendDaily')
     application.run_polling()
