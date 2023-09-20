@@ -13,7 +13,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    env:
+      BOT_ACCESS: ${{ secrets.BOT_ACCESS }}
+      PERSONAL_ACCESS: ${{ secrets.PERSONAL_ACCESS }}
     steps:
       - uses: actions/checkout@v2
 
