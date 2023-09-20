@@ -1,15 +1,12 @@
 import asyncio
-import telegram
 import logging
-from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton
+from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import ( 
     ApplicationBuilder, 
     ContextTypes, 
     CommandHandler, 
     filters, 
-    MessageHandler, 
-    JobQueue,
-    ConversationHandler
+    MessageHandler
 )
 import update_csv as uc
 import handle_git as hg
@@ -35,7 +32,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     if update.effective_user.name == SUPER_USER:
         context.job_queue.run_daily(
-            today_status,  
+            today_status,
             name=SUPER_USER, 
             chat_id=chat_id,
             time=dt.time(8, 30)
@@ -82,7 +79,6 @@ async def get_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 
-
 async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Cancels and ends the conversation."""
 
@@ -114,7 +110,6 @@ async def set_number(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 
-
 if __name__ == '__main__':
     mytoken = '6427992574:AAFCT9BgJ7gsRHfAlFNoSzcr2ZmG0qG7Op0'
     application = ApplicationBuilder().token(mytoken).build()
@@ -133,4 +128,5 @@ if __name__ == '__main__':
     application.add_handler(stop_handler)
     application.add_handler(num_handler)
     application.add_handler(unknown_handler)
+    
     application.run_polling()

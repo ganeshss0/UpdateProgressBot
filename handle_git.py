@@ -3,7 +3,7 @@ from github import Github
 import json
 
 
-ACCESS_TOKEN = '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'
+ACCESS_TOKEN = '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'
 USERNAME = 'ganeshss0'
 REPOSITORY = 'my_data'
 CSV_FILE = 'GoodDay.csv'
