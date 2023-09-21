@@ -31,11 +31,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.effective_chat.id
 
     if update.effective_user.name == SUPER_USER:
-        context.job_queue.run_daily(
+        context.job_queue.run_repeating(
             today_status,
             name=SUPER_USER, 
             chat_id=chat_id,
-            time=dt.time(8, 30)
+            interval=dt.timedelta(days=1)
         )
 
     await update.message.reply_text(
@@ -98,7 +98,7 @@ async def set_number(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         try:
             selected_number = int(update.message.text)
-            uc.update(selected_number, './my_data/GoodDay.csv')
+            uc.update(selected_number, './my_data/GoodDay.csv', dt.datetime.now() - dt.timedelta(days=1))
             hg.update()
             await update.effective_chat.send_message(text='Succesfully Updated')
         except:
@@ -111,7 +111,7 @@ async def set_number(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 if __name__ == '__main__':
-    mytoken = '6427992574:AAFCT9BgJ7gsRHfAlFNoSzcr2ZmG0qG7Op0'
+    mytoken = 'BOT_TOKEN'
     application = ApplicationBuilder().token(mytoken).build()
 
 

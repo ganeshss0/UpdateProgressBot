@@ -1,9 +1,9 @@
 import os
 from github import Github
-import json
+import subprocess
 
 
-ACCESS_TOKEN = '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'
+ACCESS_TOKEN = 'ACCESS_TOKEN'
 USERNAME = 'ganeshss0'
 REPOSITORY = 'my_data'
 CSV_FILE = 'GoodDay.csv'
@@ -12,6 +12,7 @@ SHA_FILE = 'git_sha.json'
 
 
 def update():
+    run_script('visualization.py')
     
     g = Github(ACCESS_TOKEN)
     user = g.get_user(USERNAME)
@@ -50,3 +51,10 @@ def update():
 
     except Exception as e:
         print(f'Error occured: {str(e)}')
+
+
+def run_script(module_name:str):
+    current_dir = os.getcwd()
+    os.chdir(REPOSITORY)
+    subprocess.run(["python", module_name])
+    os.chdir(current_dir)
