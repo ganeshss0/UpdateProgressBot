@@ -1,2 +1,2 @@
 # UpdateProgressBot
-Telegram Bot that sends message to user daily and update their github repository based on their input.
+Update Progress Bot is a telegram bot that can track and shows statistics regarding cigarette, Fap etc.

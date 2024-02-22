@@ -1,0 +1,6 @@
+{
+    "dataset_file_name" : "GoodDay.csv",
+    "dataset_directory" : "data",
+    "visualization_file_name" : "progress.png",
+    "visualization_directory" : "Progress"
+}
