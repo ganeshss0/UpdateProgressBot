@@ -167,7 +167,7 @@ testing.ipynb
 
 # Data Folder
 
-./data/
+./data/GoodDay.csv
 
 # Bot Token File
 bot_token.sh
