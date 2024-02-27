@@ -1,0 +1,11 @@
+{   
+    "dataset_file_name" : "GoodDay.csv",
+    "dataset_directory" : "data",
+    "temporary_data_directory" : ".temp",
+    "visualization_file_name" : "progress.png",
+    "visualization_directory" : "Visualization",
+    "response_file_name" : "predefined_response.json",
+    "response_directory" : "Config",
+    "super_user" : "@dopodix"
+
+}
