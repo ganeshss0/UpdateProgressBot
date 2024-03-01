@@ -174,3 +174,9 @@ bot_token.sh
 
 # Log Files
 ./Logs/
+
+# Config Files
+./Config
+./Config/config.json
+./Config/predefined_response.json
+
