@@ -180,3 +180,7 @@ bot_token.sh
 ./Config/config.json
 ./Config/predefined_response.json
 
+# Visualizations
+./Visualization
+./Visualization/progress.png
+

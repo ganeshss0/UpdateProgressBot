@@ -1,36 +1,46 @@
-from utils import CURRENT_DATE, DATE_FORMAT, load_dataset, ONE_DAY_TIMEDELTA
-from logger import logging
-from main import main
-from utils import Config, pd
+from progress.utils import CURRENT_DATE, DATE_FORMAT, load_dataset, ONE_DAY_TIMEDELTA
+from progress.logger import logging
+from progress.main import main
+from progress.utils import Config, pd
 
 
 
 
-def get_yesterday_date() -> tuple[str, str]:
-    '''Return the Yesterday Day and Month-Year.'''
+def get_yesterday_date() -> tuple[str, int, int]:
+    '''
+    Return the Yesterday Day, Month and Year.
+    # Returns
+    (Day, Month, Year)
+    '''
 
     # Yesterday's Time Stamp
     yesterday = CURRENT_DATE - ONE_DAY_TIMEDELTA
 
     return (
-        str(yesterday.day), 
-        yesterday.strftime(DATE_FORMAT)
+        str(yesterday.day),
+        yesterday.month,
+        yesterday.year
         )
 
-def UpdateValue(data, year_month_filter, day, value=0):
+def UpdateValue(data, year:int, month:int, day:str, value=0):
     '''Updates Values in Data.'''
 
+    year_mask = data['Date'].dt.year == year
+    month_mask = data['Date'].dt.month == month
+    mask = (year_mask & month_mask)
     # Updating the value in dataset
-    data.loc[year_month_filter, day] = value
+    data.loc[mask, day] = value
 
     return data
 
-def Get_Year_Month_Filter(data: pd.DataFrame, year_month:str) -> pd.Series:
+def Get_Year_Month_Filter(data: pd.DataFrame, year: int, month:int) -> pd.Series:
     '''Return a boolean series of the contains True where year_month matches with Date column in data.'''
 
-    formatted_date = data['Date'].dt.strftime(DATE_FORMAT)
+    # formatted_date = data['Date'].dt.strftime(DATE_FORMAT)
+    month_mask = data['Date'].dt.month == month
+    year_mask = data['Date'].dt.year == month
 
-    return (formatted_date == year_month)
+    return (month_mask & year_mask)
 
 
 

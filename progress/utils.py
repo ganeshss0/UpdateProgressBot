@@ -1,65 +1,70 @@
-from logger import logging
+from progress.logger import logging
 from calendar import month_abbr
 import datetime as dt
 import pandas as pd
 import json
-import os
-from CreateTemplate import create
+from progress.progress_data.CreateTemplate import create
+from progress.entity import *
 
 
-######## Constants #######
-CONFIG_FILE = 'config.json'
-
-DATASET_FILE_KEY = 'dataset_file_name'
-DATASET_DIR_KEY = 'dataset_directory'
-VISUAlZ_FILE_KEY = 'visualization_file_name'
-VISUAlZ_DIR_KEY = 'visualization_directory'
-
-# Current Date When the file is Running
-CURRENT_DATE = dt.datetime.now()
-ONE_DAY_TIMEDELTA = dt.timedelta(days=1)
-
-# Date Format Used in CSV File
-DATE_FORMAT = '%Y-%m'
-##########################
 
 class Config:
+    '''Configuration Class'''
     def __init__(self) -> None:
-        self.config_file = CONFIG_FILE
-        self.config = self.read_config(self.config_file)
+        logging.info('Initializing Configuration')
+
+        self.config_file_path = os.path.join(CONFIG_DIR, CONFIG_FILE)
+        self.config = self.read_config(self.config_file_path)
         self.visualization_path = self.get_visualization_path()  
         self.dataset_path = self.get_dataset_path()
+        self.temp_data_dir = self.get_temporary_dataset_dir()
+        self.response_path = self.get_response_path()
+        self.bot_token = os.environ.get(BOT_TOKEN_ENVIR_KEY)
+        self.super_user = self.config.get(SUPER_USER_KEY)
+        self.message_time = pd.Timestamp('08:11', tz='Asia/Kolkata')
 
     @staticmethod
     def read_config(file_path:str) -> dict:
-        with open(file_path, mode='r', encoding='utf-8') as config:
-            configuration = json.load(config)
-        return configuration
+        return read_json(file_path)
 
     @staticmethod
     def write_config(obj: dict, file_path:str = CONFIG_FILE) -> None:
-        with open(file_path, mode='w', encoding='utf-8') as config:
-            json.dump(obj, config)
+        write_json(obj, file_path)
 
 
     def get_visualization_path(self) -> str:
         '''Returns the Path of Visualization.'''
 
-        visual_file_name = self.config[VISUAlZ_FILE_KEY]
-        visual_dir = self.config[VISUAlZ_DIR_KEY]
+        visual_file_name = self.config.get(VISUALZ_FILE_KEY)
+        visual_dir = self.config.get(VISUALZ_DIR_KEY)
 
         return os.path.join(visual_dir, visual_file_name)
 
     def get_dataset_path(self) -> str:
         '''Returns the Path of the dataset.'''
 
-        dataset_file_name = self.config[DATASET_FILE_KEY]
-        dataset_dir = self.config[DATASET_DIR_KEY]
+        dataset_file_name = self.config.get(DATASET_FILE_KEY)
+        dataset_dir = self.config.get(DATASET_DIR_KEY)
 
         return os.path.join(dataset_dir, dataset_file_name)
 
+    def get_response_path(self) -> str:
+        '''Returns the Path of Response File'''
+        
+        response_file_name = self.config.get(RESPONSE_FILE_KEY)
+        response_dir = self.config.get(RESPONSE_DIR_KEY)
 
-def load_dataset(filepath:str) -> pd.DataFrame:
+        return os.path.join(response_dir, response_file_name)
+    
+    def get_temporary_dataset_dir(self) -> str:
+        
+        dataset_dir = self.config.get(DATASET_DIR_KEY)
+        temp_data_dir = self.config.get(TEMP_DATA_DIR_KEY)
+
+        return os.path.join(dataset_dir, temp_data_dir)
+
+
+def load_dataset(filepath:str, load_default: bool = True) -> pd.DataFrame:
     '''Read the CSV file and return into a dataframe object.'''
 
     # Reading the CSV File
@@ -77,8 +82,9 @@ def load_dataset(filepath:str) -> pd.DataFrame:
             )
     else:
         logging.warning(f'Filepath {filepath} does not exists')
-        logging.warning('Loading Dataset Template')
-        return create(CURRENT_DATE)
+        if load_default:
+            logging.warning('Loading Dataset Template')
+            return create(CURRENT_DATE)
         
 
 
@@ -91,6 +97,9 @@ def save_dataset(data:pd.DataFrame, filepath:str) -> None:
 
     # Saving the data to CSV file
     # Replacing the NaN values with 'x'
+    dir_name = os.path.dirname(filepath)
+    os.makedirs(dir_name, exist_ok=True)
+
     logging.info(f'Saving Data to {filepath}')
     data.to_csv(
         filepath, 
@@ -110,8 +119,43 @@ def extract_data(data:pd.DataFrame) -> tuple[pd.RangeIndex, pd.Series, pd.DataFr
 
     # Y Axis of Visualization
     # The month in Date column are transformed from [9, 10, 11, 12] to ['Sep', 'Oct', 'Nov', 'Dec']
-    # Adding Both month and year [2023-12] --> 'Dec 2023'
-    y = data['Date'].dt.month.apply(month_abbr.__getitem__) + ' ' + data['Date'].dt.year.astype(str)
+    # [2023-12] --> 'Dec 2023'
+    y = data['Date'].dt.strftime(DATE_FORMAT_VIZ)
 
-    return x, y, Z
+    return x, y, Z.astype(float)
     
+
+def read_json(file_path: str) -> dict:
+    if os.path.exists(file_path):
+        with open(file=file_path, mode='r', encoding='utf-8') as file:
+            json_data = json.load(file)
+        return json_data
+    else:
+        return dict()
+
+def write_json(obj: dict, file_path:str) -> None:
+    parent_dir = os.path.dirname(file_path)
+    os.makedirs(parent_dir, exist_ok=True)
+    try:
+        with open(file_path, mode='w', encoding='utf-8') as file:
+            json.dump(obj, file)
+    except Exception as e:
+        logging.error(e)
+
+    
+def Validate_CSV(file_path: str) -> bool:
+    
+    FileExists = os.path.exists(file_path)
+    ValidFileName = file_path.endswith('.csv')
+    data = load_dataset(file_path)
+    isDataLoaded = data != None
+    isColumnCount32 = data.columns.size == 32
+    
+
+    # csv_content = io.StringIO()/
+    # CSV_file.download(out=csv_content)
+    # csv_content.seek(0)
+
+    # data = pd.read_csv(csv_content)
+    data.to_csv('./download.csv')
+    return ValidFileName

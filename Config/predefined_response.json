@@ -1,7 +1,7 @@
 {
     "introduction": "I am a bot, Developed by https://t.me/dopodix . I help you in keep tracking your cigarette/NoFap consumptions and show you statistics and visualization regarding your track. Thank you!",
     "invalid_command" : "Invalid Command, Please enter correct command.",
-    "help" : "Help Message",
+    "help" : "`/start`: About Bot, Commands\n`/help`: Shows Commands\n`/setup`: Bot Setup\n`/stat`: Sends you Visualization\n`/get`: Sends you data\n`/stop`: Clear your Bot Setup\n`/load`: Load data send by user\n`/set`: Update a value in data, format-'2023-03-27 0'",
     "non_user_introduction" : "I am a bot, Developed by https://t.me/dopodix . I help you in keep tracking your cigarette/NoFap consumptions and show you statistics and visualization regarding your track. Thank you! Right now I am in testing."
     
 }

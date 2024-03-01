@@ -1,5 +1,6 @@
-from logger import logging
-from utils import dt, pd
+from progress.logger import logging
+from progress.utils import dt, pd
+from progress.entity import ONE_MONTH_TIMEDELTA
 
 
 
@@ -9,7 +10,7 @@ def create(current_date: dt.datetime)->pd.DataFrame:
     # columns of dataset
     columns = ['Date'] + list(range(1, 32))
     # Next 12 months time stamps, starts from today
-    next_12_months = pd.date_range(start=current_date, freq='M', periods=12)
+    next_12_months = pd.date_range(start=current_date - ONE_MONTH_TIMEDELTA, freq='ME', periods=12)
     logging.info('Creating Dataset Template')
     template = pd.DataFrame(
         data={
@@ -17,6 +18,7 @@ def create(current_date: dt.datetime)->pd.DataFrame:
             },
         columns=columns
     )
+    template.columns = template.columns.astype(str)
     return template
 
 
@@ -38,3 +40,4 @@ def add_month_row(data: pd.DataFrame, current_date:object) -> pd.DataFrame:
     logging.info('New Month Row Added Successfully')
 
     return data
+
