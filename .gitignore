@@ -166,7 +166,7 @@ API/
 testing.ipynb
 
 # Data Folder
-
+data
 ./data/GoodDay.csv
 
 # Bot Token File
